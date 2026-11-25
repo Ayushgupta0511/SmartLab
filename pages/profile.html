@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Profile – SmartLab</title>
+  <link rel="stylesheet" href="../css/global.css"/>
+  <style>
+    .profile-hero {
+      background:linear-gradient(135deg,var(--navy),var(--navy-light));
+      border-radius:var(--radius-lg); padding:2.5rem;
+      display:flex; align-items:center; gap:2rem; margin-bottom:2rem;
+      position:relative; overflow:hidden;
+    }
+    .profile-hero::before {
+      content:''; position:absolute; inset:0;
+      background:radial-gradient(ellipse at 80% 50%,rgba(201,168,76,0.1),transparent 60%);
+    }
+    .profile-avatar-lg {
+      width:88px; height:88px; border-radius:50%;
+      background:linear-gradient(135deg,var(--gold),var(--warning));
+      display:flex; align-items:center; justify-content:center;
+      font-size:2.2rem; font-weight:700; color:var(--navy);
+      border:4px solid rgba(201,168,76,0.3); flex-shrink:0; position:relative; z-index:1;
+    }
+    .profile-info { position:relative; z-index:1; }
+    .profile-info h2 { color:var(--pearl); font-size:1.6rem; margin-bottom:0.3rem; }
+    .profile-info p  { color:var(--slate-light); font-size:0.9rem; }
+    .profile-role { display:inline-block; background:rgba(201,168,76,0.2); border:1px solid rgba(201,168,76,0.4); border-radius:50px; padding:0.2rem 0.75rem; font-size:0.75rem; font-weight:700; color:var(--gold); letter-spacing:0.06em; text-transform:uppercase; margin-top:0.5rem; }
+    .info-row { display:flex; padding:0.9rem 0; border-bottom:1px solid #F0EBE0; gap:1rem; }
+    .info-row:last-child { border-bottom:none; }
+    .info-label { font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); min-width:140px; }
+    .info-val { font-size:0.9rem; color:var(--text-mid); }
+    .session-hist-item { background:#F9F6EE; border-radius:var(--radius); padding:0.75rem 1rem; margin-bottom:0.4rem; font-size:0.85rem; color:var(--text-mid); display:flex; justify-content:space-between; }
+  </style>
+</head>
+<body>
+<header class="topbar">
+  <a href="../index.html" class="topbar-brand">
+    <svg width="36" height="36" viewBox="0 0 44 44" fill="none"><rect width="44" height="44" rx="12" fill="#C9A84C"/><rect x="4" y="4" width="36" height="36" rx="9" fill="#0D1B2A"/><ellipse cx="22" cy="22" rx="13" ry="6" stroke="#C9A84C" stroke-width="1.5" fill="none"/><ellipse cx="22" cy="22" rx="13" ry="6" stroke="#C9A84C" stroke-width="1.5" fill="none" transform="rotate(60 22 22)"/><ellipse cx="22" cy="22" rx="13" ry="6" stroke="#C9A84C" stroke-width="1.5" fill="none" transform="rotate(120 22 22)"/><circle cx="22" cy="22" r="3" fill="#C9A84C"/></svg>
+    <div><span class="topbar-brand-name">SmartLab</span><span class="topbar-brand-sub">Student Portal</span></div>
+  </a>
+  <nav class="topbar-nav">
+    <a href="student-dashboard.html">Dashboard</a>
+    <a href="floor-map.html">Floor Map</a>
+    <a href="reservations.html">Reservations</a>
+    <a href="checkin.html">Check-In</a>
+    <a href="fault-report.html">Report Fault</a>
+  </nav>
+  <div class="topbar-actions">
+    <div class="user-chip"><div class="user-avatar" id="userAvatar">AJ</div><span id="userName">Student</span></div>
+    <button class="btn btn-outline btn-sm" onclick="SmartLab.logout()">Sign Out</button>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-section-label">Navigation</div>
+    <a href="student-dashboard.html" class="sidebar-link"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+    <a href="floor-map.html" class="sidebar-link"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Floor Map</a>
+    <a href="reservations.html" class="sidebar-link"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/></svg>My Reservations</a>
+    <a href="checkin.html" class="sidebar-link"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/></svg>QR Check-In</a>
+    <a href="fault-report.html" class="sidebar-link"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>Report Fault</a>
+    <div class="sidebar-section-label" style="margin-top:1rem;">Account</div>
+    <a href="profile.html" class="sidebar-link active"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile</a>
+    <a href="#" onclick="SmartLab.logout()" class="sidebar-link" style="color:#C0392B;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16,17 21,12 16,7"/></svg>Sign Out</a>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div class="breadcrumb"><a href="../index.html">SmartLab</a> › Profile</div>
+    </div>
+
+    <!-- Profile hero -->
+    <div class="profile-hero">
+      <div class="profile-avatar-lg" id="profileAvatar">AJ</div>
+      <div class="profile-info">
+        <h2 id="profileName">Alex Johnson</h2>
+        <p id="profileEmail">student@smartlab.edu</p>
+        <span class="profile-role" id="profileRole">Student</span>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;" class="profile-cols">
+      <!-- Account Info -->
+      <div class="card">
+        <div class="card-header"><h4>👤 Account Information</h4></div>
+        <div class="card-body" id="accountInfo"></div>
+      </div>
+
+      <!-- Activity Summary -->
+      <div class="card">
+        <div class="card-header"><h4>📊 My Activity Summary</h4></div>
+        <div class="card-body" id="activitySummary"></div>
+      </div>
+
+      <!-- Check-in history -->
+      <div class="card">
+        <div class="card-header"><h4>⏱ Check-In History</h4></div>
+        <div class="card-body" id="checkinHistory"></div>
+      </div>
+
+      <!-- QR code display -->
+      <div class="card">
+        <div class="card-header"><h4>🪪 Student ID QR Code</h4></div>
+        <div class="card-body" style="text-align:center;">
+          <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1.25rem;">Present this at the lab reception for quick identity verification.</p>
+          <div class="qr-box" style="display:inline-flex;">
+            <div id="studentQR"></div>
+            <div style="font-weight:700;color:var(--navy);" id="studentIdLabel">Student ID</div>
+            <p style="font-size:0.78rem;color:var(--text-muted);">This QR encodes your unique student identity</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="toast-container"></div>
+<script src="../js/app.js"></script>
+<script>
+  window.onload = () => {
+    const user = SmartLab.requireAuth('student');
+    if (!user) return;
+    document.getElementById('userName').textContent = user.name;
+    document.getElementById('userAvatar').textContent = user.name.split(' ').map(n=>n[0]).join('');
+
+    // Profile hero
+    const initials = user.name.split(' ').map(n=>n[0]).join('');
+    document.getElementById('profileAvatar').textContent = initials;
+    document.getElementById('profileName').textContent = user.name;
+    document.getElementById('profileEmail').textContent = user.email;
+    document.getElementById('profileRole').textContent = user.role.charAt(0).toUpperCase()+user.role.slice(1);
+
+    // Account info
+    document.getElementById('accountInfo').innerHTML = [
+      ['Full Name',    user.name],
+      ['Student ID',   user.id],
+      ['Email',        user.email],
+      ['Department',   user.department||'—'],
+      ['Year',         user.year||'—'],
+      ['Account Type', user.role],
+    ].map(([l,v])=>`
+      <div class="info-row">
+        <div class="info-label">${l}</div>
+        <div class="info-val">${v}</div>
+      </div>`).join('');
+
+    // Activity summary
+    const myRes    = SmartLab.state.reservations.filter(r=>r.userId===user.id);
+    const myCI     = SmartLab.state.checkIns.filter(c=>c.userId===user.id);
+    const myFaults = SmartLab.state.faultReports.filter(f=>f.userId===user.id);
+    document.getElementById('activitySummary').innerHTML = [
+      ['Total Reservations', myRes.length,    '📅'],
+      ['Active Reservations', myRes.filter(r=>r.status==='active').length, '✅'],
+      ['Check-In Sessions', myCI.length, '💻'],
+      ['Fault Reports', myFaults.length, '🔧'],
+      ['Open Faults', myFaults.filter(f=>f.status==='open').length, '⚠️'],
+    ].map(([l,v,e])=>`
+      <div class="info-row">
+        <div class="info-label">${e} ${l}</div>
+        <div class="info-val" style="font-weight:700;color:var(--navy);">${v}</div>
+      </div>`).join('');
+
+    // Check-in history
+    const history = myCI.slice(-5).reverse();
+    document.getElementById('checkinHistory').innerHTML = history.length
+      ? history.map(c=>`
+        <div class="session-hist-item">
+          <div>
+            <div style="font-weight:600;color:var(--navy);">${c.wsId}</div>
+            <div style="font-size:0.78rem;color:var(--text-muted);">In: ${formatDate(c.checkinAt)}</div>
+            ${c.checkoutAt?`<div style="font-size:0.78rem;color:var(--text-muted);">Out: ${formatDate(c.checkoutAt)}</div>`:'<div style="font-size:0.78rem;color:#27AE60;font-weight:600;">Active Session</div>'}
+          </div>
+          ${statusBadge(c.checkoutAt?'completed':'checkedin')}
+        </div>`).join('')
+      : '<p style="color:var(--text-muted);font-size:0.9rem;">No check-in history yet.</p>';
+
+    // Student QR
+    const qrSvg = generateQRSVG(user.id+':'+user.email);
+    document.getElementById('studentQR').innerHTML = qrSvg;
+    document.getElementById('studentIdLabel').textContent = user.id;
+
+    if (window.innerWidth < 768) document.querySelector('.profile-cols').style.gridTemplateColumns='1fr';
+  };
+</script>
+</body>
+</html>

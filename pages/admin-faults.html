@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fault Reports – SmartLab Admin</title>
+  <link rel="stylesheet" href="../css/global.css"/>
+  <style>
+    .fault-card {
+      background:var(--white); border-radius:var(--radius-lg); padding:1.4rem 1.6rem;
+      box-shadow:var(--shadow-sm); margin-bottom:1rem;
+      border-left:5px solid var(--border); transition:box-shadow var(--transition);
+    }
+    .fault-card:hover { box-shadow:var(--shadow-md); }
+    .fault-card.open        { border-left-color:#E74C3C; }
+    .fault-card.in_progress { border-left-color:#F39C12; }
+    .fault-card.resolved    { border-left-color:#2ECC71; }
+    .sev-pill { display:inline-block; padding:0.2rem 0.6rem; border-radius:50px; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; }
+    .sev-low    { background:#D4EDD9; color:#1A5C2E; }
+    .sev-medium { background:#FEF9E7; color:#7A5000; }
+    .sev-high   { background:#FDEDEC; color:#721C24; }
+  </style>
+</head>
+<body>
+<header class="topbar">
+  <a href="../index.html" class="topbar-brand">
+    <svg width="36" height="36" viewBox="0 0 44 44" fill="none"><rect width="44" height="44" rx="12" fill="#C9A84C"/><rect x="4" y="4" width="36" height="36" rx="9" fill="#0D1B2A"/><ellipse cx="22" cy="22" rx="13" ry="6" stroke="#C9A84C" stroke-width="1.5" fill="none"/><ellipse cx="22" cy="22" rx="13" ry="6" stroke="#C9A84C" stroke-width="1.5" fill="none" transform="rotate(60 22 22)"/><ellipse cx="22" cy="22" rx="13" ry="6" stroke="#C9A84C" stroke-width="1.5" fill="none" transform="rotate(120 22 22)"/><circle cx="22" cy="22" r="3" fill="#C9A84C"/></svg>
+    <div><span class="topbar-brand-name">SmartLab</span><span class="topbar-brand-sub">Administration</span></div>
+  </a>
+  <div class="topbar-actions">
+    <span style="background:linear-gradient(135deg,var(--gold),var(--warning));color:var(--navy);padding:0.2rem 0.75rem;border-radius:50px;font-size:0.72rem;font-weight:700;">🛡️ Admin</span>
+    <div class="user-chip"><div class="user-avatar" id="userAvatar">PS</div><span id="userName">Admin</span></div>
+    <button class="btn btn-outline btn-sm" onclick="SmartLab.logout()">Sign Out</button>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-section-label">Admin Panel</div>
+    <a href="admin-dashboard.html" class="sidebar-link"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Overview</a>
+    <a href="admin-workstations.html" class="sidebar-link"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/></svg>Workstations</a>
+    <a href="admin-faults.html" class="sidebar-link active"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg>Fault Reports</a>
+    <a href="admin-analytics.html" class="sidebar-link"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Analytics</a>
+    <a href="admin-audit.html" class="sidebar-link"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>Audit Log</a>
+    <div class="sidebar-section-label" style="margin-top:1rem;">Management</div>
+    <a href="admin-announcements.html" class="sidebar-link"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg>Announcements</a>
+    <a href="#" onclick="SmartLab.logout()" class="sidebar-link" style="color:#C0392B;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16,17 21,12 16,7"/></svg>Sign Out</a>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div class="breadcrumb"><a href="admin-dashboard.html">Admin</a> › Fault Reports</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+        <h1>⚠️ Fault Reports</h1>
+        <div id="faultSummaryPills" style="display:flex;gap:0.75rem;flex-wrap:wrap;"></div>
+      </div>
+    </div>
+
+    <!-- Filter tabs -->
+    <div class="tab-nav" id="faultTabs">
+      <button class="tab-btn active" data-tab="tab-open">Open</button>
+      <button class="tab-btn" data-tab="tab-inprogress">In Progress</button>
+      <button class="tab-btn" data-tab="tab-resolved">Resolved</button>
+      <button class="tab-btn" data-tab="tab-all">All</button>
+    </div>
+
+    <div id="tab-open" class="tab-pane"></div>
+    <div id="tab-inprogress" class="tab-pane hidden"></div>
+    <div id="tab-resolved" class="tab-pane hidden"></div>
+    <div id="tab-all" class="tab-pane hidden"></div>
+  </main>
+</div>
+
+<!-- Update Modal -->
+<div class="modal-overlay" id="updateModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Update Fault Report</h3>
+      <button class="modal-close" onclick="closeModal('updateModal')">✕</button>
+    </div>
+    <div id="updateModalBody"></div>
+    <div style="margin-top:1.5rem;">
+      <label class="form-label">Update Status</label>
+      <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:0.5rem;">
+        <button class="btn btn-dark" onclick="updateStatus('in_progress')">🔧 Mark In Progress</button>
+        <button class="btn btn-success" onclick="updateStatus('resolved')">✅ Mark Resolved</button>
+        <button class="btn btn-outline" onclick="updateStatus('open')">🔄 Reopen</button>
+      </div>
+    </div>
+    <div style="margin-top:1.25rem;">
+      <label class="form-label">Add Maintenance Note</label>
+      <textarea id="maintenanceNote" class="form-control" rows="3" placeholder="e.g. Replacement ordered, expected resolution within 48 hours…" style="resize:vertical;"></textarea>
+      <button class="btn btn-primary" style="margin-top:0.75rem;" onclick="saveNote()">Save Note</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="../js/app.js"></script>
+<script>
+  let user = null, currentFaultId = null;
+
+  window.onload = () => {
+    user = SmartLab.requireAuth('admin');
+    if (!user) return;
+    document.getElementById('userName').textContent = user.name;
+    document.getElementById('userAvatar').textContent = user.name.split(' ').filter((_,i)=>i<2).map(n=>n[0]).join('');
+    renderFaults();
+    initTabs('#faultTabs');
+  };
+
+  function renderFaults() {
+    const all  = SmartLab.state.faultReports;
+    const open = all.filter(f=>f.status==='open');
+    const inp  = all.filter(f=>f.status==='in_progress');
+    const res  = all.filter(f=>f.status==='resolved');
+
+    // Summary pills
+    document.getElementById('faultSummaryPills').innerHTML = `
+      <span class="badge badge-outofsvc">${open.length} Open</span>
+      <span class="badge badge-reserved">${inp.length} In Progress</span>
+      <span class="badge badge-available">${res.length} Resolved</span>`;
+
+    document.getElementById('tab-open').innerHTML       = renderFaultList(open);
+    document.getElementById('tab-inprogress').innerHTML = renderFaultList(inp);
+    document.getElementById('tab-resolved').innerHTML   = renderFaultList(res);
+    document.getElementById('tab-all').innerHTML        = renderFaultList(all);
+  }
+
+  function renderFaultList(faults) {
+    if (!faults.length) return '<p style="color:var(--text-muted);font-size:0.9rem;">No reports in this category.</p>';
+    return faults.map(f => {
+      const ws = SmartLab.getWorkstation(f.wsId);
+      return `
+        <div class="fault-card ${f.status}">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+            <div style="flex:1;">
+              <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;flex-wrap:wrap;">
+                <strong style="color:var(--navy);font-size:1rem;">${f.wsId}</strong>
+                ${statusBadge(f.status)}
+                <span class="sev-pill sev-${f.severity}">${f.severity}</span>
+                <span style="font-size:0.75rem;color:var(--text-muted);">ID: ${f.id}</span>
+              </div>
+              <p style="color:var(--text-mid);font-size:0.9rem;margin-bottom:0.5rem;">${f.description}</p>
+              <div style="font-size:0.78rem;color:var(--text-muted);">
+                📅 ${formatDate(f.createdAt)} &nbsp;|&nbsp;
+                🖥 Row ${ws?.row||'?'}, Col ${ws?.col||'?'}
+              </div>
+            </div>
+            <div style="display:flex;gap:0.5rem;flex-direction:column;align-items:flex-end;">
+              <button class="btn btn-outline btn-sm" onclick="openUpdateModal('${f.id}')">Manage →</button>
+              ${f.status!=='resolved' ? `<button class="btn btn-success btn-sm" onclick="quickResolve('${f.id}')">✅ Quick Resolve</button>` : ''}
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function openUpdateModal(frId) {
+    currentFaultId = frId;
+    const f = SmartLab.state.faultReports.find(r=>r.id===frId);
+    if (!f) return;
+    document.getElementById('updateModalBody').innerHTML = `
+      <div style="background:#F9F6EE;border-radius:var(--radius);padding:1rem;margin-bottom:1rem;">
+        <div style="display:flex;gap:0.75rem;align-items:center;margin-bottom:0.5rem;">
+          <strong>${f.wsId}</strong> ${statusBadge(f.status)} <span class="sev-pill sev-${f.severity}">${f.severity}</span>
+        </div>
+        <p style="font-size:0.9rem;color:var(--text-mid);">${f.description}</p>
+        <p style="font-size:0.78rem;color:var(--text-muted);margin-top:0.4rem;">Reported: ${formatDate(f.createdAt)}</p>
+      </div>`;
+    document.getElementById('maintenanceNote').value = '';
+    openModal('updateModal');
+  }
+
+  function updateStatus(newStatus) {
+    const result = SmartLab.updateFaultStatus(currentFaultId, newStatus);
+    if (result.success) {
+      showToast(`Report updated to "${newStatus}".`, 'success');
+      closeModal('updateModal');
+      renderFaults();
+    } else showToast(result.error, 'error');
+  }
+
+  function quickResolve(frId) {
+    SmartLab.updateFaultStatus(frId, 'resolved');
+    showToast('Report marked as resolved. ✅', 'success');
+    renderFaults();
+  }
+
+  function saveNote() {
+    const note = document.getElementById('maintenanceNote').value.trim();
+    if (!note) return;
+    SmartLab.state.maintenanceRecords.push({
+      id:'MR'+Date.now(), wsId:SmartLab.state.faultReports.find(f=>f.id===currentFaultId)?.wsId,
+      technicianId:user.id, action:note, status:'in_progress', scheduledAt:new Date().toISOString()
+    });
+    SmartLab.addAuditLog(user.id,'MAINTENANCE_NOTE',note);
+    showToast('Maintenance note saved.', 'success');
+    document.getElementById('maintenanceNote').value='';
+  }
+</script>
+</body>
+</html>

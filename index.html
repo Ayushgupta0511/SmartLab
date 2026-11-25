@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartLab – Intelligent Computer Lab Management</title>
+  <link rel="stylesheet" href="css/global.css"/>
+  <style>
+    /* ---- Landing / Hero ---- */
+    .hero {
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--navy) 0%, #0F2744 55%, #182C40 100%);
+      position: relative; overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(201,168,76,0.07) 0%, transparent 70%);
+      top: -200px; right: -200px; border-radius: 50%;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(201,168,76,0.05) 0%, transparent 70%);
+      bottom: -150px; left: -100px; border-radius: 50%;
+    }
+    .hero-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.5rem 3rem; position: relative; z-index: 10;
+    }
+    .hero-body {
+      flex: 1; display: flex; align-items: center;
+      padding: 2rem 3rem 4rem; gap: 4rem; position: relative; z-index: 10;
+    }
+    .hero-text { flex: 1; max-width: 580px; }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(201,168,76,0.12); border: 1px solid rgba(201,168,76,0.3);
+      border-radius: 50px; padding: 0.4rem 1rem;
+      font-size: 0.75rem; font-weight: 700; color: var(--gold);
+      letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 1.5rem;
+    }
+    .hero-title { color: var(--pearl); margin-bottom: 1.25rem; }
+    .hero-title span { color: var(--gold); }
+    .hero-desc { color: var(--slate-light); font-size: 1.08rem; margin-bottom: 2.5rem; max-width: 480px; }
+    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .hero-visual {
+      flex: 0 0 420px; position: relative;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .lab-card-preview {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 20px; padding: 1.75rem;
+      width: 380px; box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+    }
+    .lab-card-preview h4 { color: var(--gold); font-size: 0.85rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 1rem; }
+    .mini-grid {
+      display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 1.25rem;
+    }
+    .mini-cell {
+      height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center;
+      font-size: 0.6rem; font-weight: 700; cursor: default;
+    }
+    .mini-available { background: rgba(46,204,113,0.25); border: 1px solid rgba(46,204,113,0.5); color: #2ECC71; }
+    .mini-reserved  { background: rgba(243,156,18,0.25); border: 1px solid rgba(243,156,18,0.5); color: #F39C12; }
+    .mini-checkedin { background: rgba(52,152,219,0.25); border: 1px solid rgba(52,152,219,0.5); color: #3498DB; }
+    .mini-outofsvc  { background: rgba(231,76,60,0.25);  border: 1px solid rgba(231,76,60,0.5);  color: #E74C3C; }
+    .preview-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .preview-stat {
+      background: rgba(255,255,255,0.05); border-radius: 10px; padding: 0.75rem;
+      text-align: center;
+    }
+    .preview-stat-val { font-size: 1.5rem; font-weight: 700; color: var(--gold); }
+    .preview-stat-lbl { font-size: 0.65rem; color: var(--slate-light); text-transform: uppercase; letter-spacing: 0.06em; }
+    .features-band {
+      background: var(--white); padding: 5rem 3rem;
+    }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 2rem; margin-top: 3rem; }
+    .feature-card {
+      padding: 2rem 1.75rem; border-radius: var(--radius-lg);
+      border: 1px solid #E8E0CC;
+      transition: all var(--transition);
+    }
+    .feature-card:hover { border-color: var(--gold); box-shadow: var(--shadow-md); transform: translateY(-4px); }
+    .feature-icon {
+      width: 60px; height: 60px; border-radius: 14px;
+      background: linear-gradient(135deg, var(--navy), var(--navy-light));
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1.25rem; font-size: 1.5rem;
+    }
+    .feature-card h3 { font-family: 'Inter', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--navy); margin-bottom: 0.6rem; }
+    .feature-card p  { font-size: 0.9rem; color: var(--text-muted); }
+    .cta-band {
+      background: linear-gradient(135deg, var(--navy), var(--navy-light));
+      padding: 5rem 3rem; text-align: center;
+    }
+    .cta-band h2 { color: var(--pearl); margin-bottom: 1rem; }
+    .cta-band p  { color: var(--slate-light); max-width: 500px; margin: 0 auto 2rem; }
+    .footer {
+      background: var(--navy); border-top: 1px solid rgba(201,168,76,0.15);
+      padding: 2rem 3rem; display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .footer p { color: var(--slate); font-size: 0.82rem; }
+    .footer-links { display: flex; gap: 1.5rem; }
+    .footer-links a { color: var(--slate); font-size: 0.82rem; }
+    .footer-links a:hover { color: var(--gold); }
+    /* Floating particles */
+    .particle { position: absolute; border-radius: 50%; pointer-events: none; animation: floatUp linear infinite; opacity: 0.4; }
+    @keyframes floatUp { 0%{transform:translateY(0) rotate(0); opacity:0.4;} 100%{transform:translateY(-120vh) rotate(360deg); opacity:0;} }
+  </style>
+</head>
+<body>
+
+<!-- ============================== HERO ============================== -->
+<div class="hero">
+  <!-- Floating particles -->
+  <div class="particle" style="width:6px;height:6px;background:var(--gold);left:12%;bottom:10%;animation-duration:14s;"></div>
+  <div class="particle" style="width:4px;height:4px;background:var(--gold);left:35%;bottom:5%;animation-duration:18s;animation-delay:2s;"></div>
+  <div class="particle" style="width:8px;height:8px;background:var(--gold);left:65%;bottom:8%;animation-duration:12s;animation-delay:4s;"></div>
+  <div class="particle" style="width:5px;height:5px;background:var(--gold);left:80%;bottom:15%;animation-duration:16s;animation-delay:1s;"></div>
+
+  <!-- Nav -->
+  <nav class="hero-nav">
+    <div style="display:flex;align-items:center;gap:0.75rem;">
+      <!-- SmartLab Logo SVG -->
+      <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="44" height="44" rx="12" fill="#C9A84C"/>
+        <rect x="4" y="4" width="36" height="36" rx="9" fill="#0D1B2A"/>
+        <!-- Atom ring -->
+        <ellipse cx="22" cy="22" rx="13" ry="6" stroke="#C9A84C" stroke-width="1.5" fill="none"/>
+        <ellipse cx="22" cy="22" rx="13" ry="6" stroke="#C9A84C" stroke-width="1.5" fill="none" transform="rotate(60 22 22)"/>
+        <ellipse cx="22" cy="22" rx="13" ry="6" stroke="#C9A84C" stroke-width="1.5" fill="none" transform="rotate(120 22 22)"/>
+        <!-- Center dot -->
+        <circle cx="22" cy="22" r="3" fill="#C9A84C"/>
+        <!-- Monitor -->
+        <rect x="13" y="17" width="18" height="12" rx="2" fill="none" stroke="#E8C97A" stroke-width="1.2"/>
+        <line x1="22" y1="29" x2="22" y2="32" stroke="#E8C97A" stroke-width="1.2"/>
+        <line x1="18" y1="32" x2="26" y2="32" stroke="#E8C97A" stroke-width="1.2"/>
+      </svg>
+      <div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--gold);letter-spacing:0.02em;">SmartLab</div>
+        <div style="font-size:0.6rem;color:var(--slate-light);text-transform:uppercase;letter-spacing:0.08em;">Intelligent Lab Management</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:0.75rem;">
+      <a href="pages/login.html" class="btn btn-outline" style="padding:0.6rem 1.5rem;font-size:0.88rem;">Sign In</a>
+    </div>
+  </nav>
+
+  <!-- Body -->
+  <div class="hero-body">
+    <div class="hero-text">
+      <div class="hero-eyebrow">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4" fill="currentColor"/></svg>
+        Intelligent Lab Management System
+      </div>
+      <h1 class="hero-title">Reserve. Check In.<br/><span>Work Smart.</span></h1>
+      <p class="hero-desc">SmartLab gives every student real-time visibility into lab occupancy, one-tap QR check-in, and instant fault reporting — all from the browser.</p>
+      <div class="hero-actions">
+        <a href="pages/login.html" class="btn btn-primary btn-lg">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10,17 15,12 10,7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          Get Started
+        </a>
+        <a href="#features" class="btn btn-outline btn-lg">Explore Features</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="lab-card-preview">
+        <h4>🖥 Lab Floor — Live View</h4>
+        <div class="mini-grid" id="heroGrid"></div>
+        <div class="preview-stats">
+          <div class="preview-stat"><div class="preview-stat-val" id="heroAvail">—</div><div class="preview-stat-lbl">Available</div></div>
+          <div class="preview-stat"><div class="preview-stat-val" id="heroReserved">—</div><div class="preview-stat-lbl">Reserved</div></div>
+          <div class="preview-stat"><div class="preview-stat-val" id="heroChecked">—</div><div class="preview-stat-lbl">Checked In</div></div>
+          <div class="preview-stat"><div class="preview-stat-val" id="heroOOS">—</div><div class="preview-stat-lbl">Out of Service</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================== FEATURES ============================== -->
+<section id="features" class="features-band">
+  <div class="container">
+    <div style="text-align:center;">
+      <div style="font-size:0.75rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-bottom:0.75rem;">What SmartLab Offers</div>
+      <h2 style="color:var(--navy);">Three features that matter</h2>
+      <p style="max-width:540px;margin:1rem auto 0;color:var(--text-muted);">One clean workflow from reservation to check-out — with real-time occupancy and built-in fault management.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🗺️</div>
+        <h3>Interactive Floor Map</h3>
+        <p>Live colour-coded workstation grid. Instantly see which seats are available, reserved, occupied, or under maintenance.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <h3>QR Check-In / Check-Out</h3>
+        <p>Scan the desk QR code to verify your identity and reservation in one step. No queues, no paper forms.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔧</div>
+        <h3>Fault & Maintenance</h3>
+        <p>Report hardware issues on the spot. Admins track, repair and return workstations to service — full audit trail included.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Usage Analytics</h3>
+        <p>Admin dashboards show real-time utilisation rates, peak hours, and fault frequency to guide data-driven decisions.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔔</div>
+        <h3>Smart Notifications</h3>
+        <p>Automatic alerts for reservation confirmations, upcoming check-in windows, and maintenance completions.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🛡️</div>
+        <h3>Audit & Compliance</h3>
+        <p>Every action — login, booking, check-in, fault report — is immutably logged for full accountability.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== CTA ============================== -->
+<section class="cta-band">
+  <h2>Ready to take your seat?</h2>
+  <p>Sign in with your student credentials and reserve a workstation in under 60 seconds.</p>
+  <a href="pages/login.html" class="btn btn-primary btn-lg">Sign In Now</a>
+</section>
+
+<!-- ============================== FOOTER ============================== -->
+<footer class="footer">
+  <div style="display:flex;align-items:center;gap:0.75rem;">
+    <svg width="28" height="28" viewBox="0 0 44 44" fill="none"><rect width="44" height="44" rx="12" fill="#C9A84C"/><rect x="4" y="4" width="36" height="36" rx="9" fill="#0D1B2A"/><circle cx="22" cy="22" r="3" fill="#C9A84C"/><ellipse cx="22" cy="22" rx="13" ry="6" stroke="#C9A84C" stroke-width="1.5" fill="none"/></svg>
+    <p>&copy; 2026 SmartLab · Intelligent Computer Lab Management</p>
+  </div>
+  <div class="footer-links">
+    <a href="pages/login.html">Student Login</a>
+    <a href="pages/login.html?role=admin">Admin Login</a>
+  </div>
+</footer>
+
+<script src="js/app.js"></script>
+<script>
+  // Hero mini-grid
+  const statuses = ['available','available','available','available','reserved','reserved','checkedin','checkedin','outofsvc'];
+  const grid = document.getElementById('heroGrid');
+  const counts = {available:0,reserved:0,checkedin:0,outofsvc:0};
+  for (let i=0;i<24;i++){
+    const st = statuses[i%statuses.length];
+    counts[st]++;
+    const cl = {available:'mini-available',reserved:'mini-reserved',checkedin:'mini-checkedin',outofsvc:'mini-outofsvc'};
+    const cell = document.createElement('div');
+    cell.className = `mini-cell ${cl[st]}`;
+    cell.title = `WS-${String(i+1).padStart(3,'0')} (${st})`;
+    grid.appendChild(cell);
+  }
+  document.getElementById('heroAvail').textContent    = counts.available;
+  document.getElementById('heroReserved').textContent = counts.reserved;
+  document.getElementById('heroChecked').textContent  = counts.checkedin;
+  document.getElementById('heroOOS').textContent      = counts.outofsvc;
+</script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign In – SmartLab</title>
+  <link rel="stylesheet" href="../css/global.css"/>
+  <style>
+    .role-toggle { display:flex; gap:0.5rem; margin-bottom:1.75rem; background:#F4F0E8; border-radius:var(--radius); padding:4px; }
+    .role-btn { flex:1; padding:0.6rem; border:none; border-radius:8px; font-family:'Inter',sans-serif; font-weight:600; font-size:0.88rem; cursor:pointer; transition:all var(--transition); background:transparent; color:var(--text-muted); }
+    .role-btn.active { background:var(--navy); color:var(--gold); box-shadow:var(--shadow-sm); }
+    .credentials-hint { background:var(--pearl); border:1px solid var(--border); border-radius:var(--radius); padding:0.9rem 1.1rem; font-size:0.82rem; color:var(--text-muted); }
+    .credentials-hint code { background:rgba(13,27,42,0.08); padding:0.1rem 0.4rem; border-radius:4px; font-size:0.8rem; color:var(--navy); font-weight:600; }
+    .login-card { max-width: 440px; }
+  </style>
+</head>
+<body>
+<div class="login-page">
+  <div class="login-card">
+    <!-- Logo -->
+    <div class="login-logo">
+      <a href="../index.html" style="display:inline-flex;align-items:center;gap:0.75rem;text-decoration:none;">
+        <svg width="52" height="52" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="44" height="44" rx="12" fill="#C9A84C"/>
+          <rect x="4" y="4" width="36" height="36" rx="9" fill="#0D1B2A"/>
+          <ellipse cx="22" cy="22" rx="13" ry="6" stroke="#C9A84C" stroke-width="1.5" fill="none"/>
+          <ellipse cx="22" cy="22" rx="13" ry="6" stroke="#C9A84C" stroke-width="1.5" fill="none" transform="rotate(60 22 22)"/>
+          <ellipse cx="22" cy="22" rx="13" ry="6" stroke="#C9A84C" stroke-width="1.5" fill="none" transform="rotate(120 22 22)"/>
+          <circle cx="22" cy="22" r="3" fill="#C9A84C"/>
+        </svg>
+        <div style="text-align:left;">
+          <div style="font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:var(--navy);">SmartLab</div>
+          <div style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;">Intelligent Lab Management</div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Role toggle -->
+    <div class="role-toggle">
+      <button class="role-btn active" id="btnStudent" onclick="setRole('student')">🎓 Student</button>
+      <button class="role-btn" id="btnAdmin" onclick="setRole('admin')">🛡️ Administrator</button>
+    </div>
+
+    <div id="alertBox"></div>
+
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input type="email" id="email" class="form-control" placeholder="your@email.edu" required autocomplete="email"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div style="position:relative;">
+          <input type="password" id="password" class="form-control" placeholder="••••••••" required autocomplete="current-password" style="padding-right:3rem;"/>
+          <button type="button" onclick="togglePwd()" style="position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:1.1rem;" title="Show/hide password">👁</button>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary w-full" style="justify-content:center;margin-top:0.5rem;" id="loginBtn">
+        Sign In
+      </button>
+    </form>
+
+    <div class="login-divider"><span>Demo Credentials</span></div>
+    <div class="credentials-hint" id="credHint">
+      <strong>Student:</strong><br/>
+      📧 <code>student@smartlab.edu</code><br/>
+      🔑 <code>student123</code>
+    </div>
+
+    <p style="text-align:center;margin-top:1.5rem;font-size:0.82rem;color:var(--text-muted);">
+      <a href="../index.html">← Back to homepage</a>
+    </p>
+  </div>
+</div>
+
+<script src="../js/app.js"></script>
+<script>
+  let currentRole = 'student';
+
+  // Check URL param
+  const params = new URLSearchParams(location.search);
+  if (params.get('role') === 'admin') setRole('admin');
+
+  function setRole(role) {
+    currentRole = role;
+    document.getElementById('btnStudent').classList.toggle('active', role === 'student');
+    document.getElementById('btnAdmin').classList.toggle('active', role === 'admin');
+    const credHint = document.getElementById('credHint');
+    if (role === 'student') {
+      credHint.innerHTML = '<strong>Student:</strong><br/>📧 <code>student@smartlab.edu</code><br/>🔑 <code>student123</code>';
+      document.getElementById('email').value = '';
+      document.getElementById('password').value = '';
+    } else {
+      credHint.innerHTML = '<strong>Administrator:</strong><br/>📧 <code>admin@smartlab.edu</code><br/>🔑 <code>admin@SL2026</code>';
+      document.getElementById('email').value = '';
+      document.getElementById('password').value = '';
+    }
+  }
+
+  function togglePwd() {
+    const pwd = document.getElementById('password');
+    pwd.type = pwd.type === 'password' ? 'text' : 'password';
+  }
+
+  function handleLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const btn = document.getElementById('loginBtn');
+    btn.disabled = true; btn.textContent = 'Signing in…';
+
+    setTimeout(() => {
+      const user = SmartLab.login(email, password);
+      if (!user) {
+        document.getElementById('alertBox').innerHTML = `
+          <div class="alert alert-danger">⚠ Invalid credentials. Please check your email and password.</div>`;
+        btn.disabled = false; btn.textContent = 'Sign In';
+        return;
+      }
+      if (user.role !== currentRole) {
+        document.getElementById('alertBox').innerHTML = `
+          <div class="alert alert-warning">⚠ Please select the correct role (${user.role}) to sign in.</div>`;
+        btn.disabled = false; btn.textContent = 'Sign In';
+        return;
+      }
+      showToast('Welcome back, ' + user.name + '!', 'success', 2000);
+      setTimeout(() => {
+        if (user.role === 'admin') window.location.href = 'admin-dashboard.html';
+        else window.location.href = 'student-dashboard.html';
+      }, 800);
+    }, 600);
+  }
+</script>
+</body>
+</html>

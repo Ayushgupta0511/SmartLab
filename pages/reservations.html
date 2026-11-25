@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reservations – SmartLab</title>
+  <link rel="stylesheet" href="../css/global.css"/>
+  <style>
+    .slots-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:0.75rem; margin-top:0.75rem; }
+    .slot-btn {
+      padding:0.65rem; border:1.5px solid var(--border); border-radius:var(--radius);
+      background:var(--white); font-size:0.82rem; font-weight:600; cursor:pointer;
+      transition:all var(--transition); text-align:center; color:var(--text-mid);
+    }
+    .slot-btn:hover, .slot-btn.selected { border-color:var(--gold); background:var(--gold-pale); color:var(--navy); }
+    .slot-btn.taken { opacity:0.4; cursor:not-allowed; border-color:#ddd; }
+    .res-card { background:var(--white); border-radius:var(--radius-lg); padding:1.4rem 1.6rem; box-shadow:var(--shadow-sm); margin-bottom:1rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; border-left:4px solid var(--gold); }
+    .res-card.cancelled { border-left-color:#ccc; opacity:0.65; }
+    .res-card.completed { border-left-color:var(--success); }
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html" class="topbar-brand">
+    <svg width="36" height="36" viewBox="0 0 44 44" fill="none"><rect width="44" height="44" rx="12" fill="#C9A84C"/><rect x="4" y="4" width="36" height="36" rx="9" fill="#0D1B2A"/><ellipse cx="22" cy="22" rx="13" ry="6" stroke="#C9A84C" stroke-width="1.5" fill="none"/><ellipse cx="22" cy="22" rx="13" ry="6" stroke="#C9A84C" stroke-width="1.5" fill="none" transform="rotate(60 22 22)"/><ellipse cx="22" cy="22" rx="13" ry="6" stroke="#C9A84C" stroke-width="1.5" fill="none" transform="rotate(120 22 22)"/><circle cx="22" cy="22" r="3" fill="#C9A84C"/></svg>
+    <div><span class="topbar-brand-name">SmartLab</span><span class="topbar-brand-sub">Reservations</span></div>
+  </a>
+  <nav class="topbar-nav">
+    <a href="student-dashboard.html">Dashboard</a>
+    <a href="floor-map.html">Floor Map</a>
+    <a href="reservations.html" class="active">Reservations</a>
+    <a href="checkin.html">Check-In</a>
+    <a href="fault-report.html">Report Fault</a>
+  </nav>
+  <div class="topbar-actions">
+    <div class="user-chip"><div class="user-avatar" id="userAvatar">AJ</div><span id="userName">Student</span></div>
+    <button class="btn btn-outline btn-sm" onclick="SmartLab.logout()">Sign Out</button>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-section-label">Navigation</div>
+    <a href="student-dashboard.html" class="sidebar-link"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+    <a href="floor-map.html" class="sidebar-link"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Floor Map</a>
+    <a href="reservations.html" class="sidebar-link active"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>My Reservations</a>
+    <a href="checkin.html" class="sidebar-link"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/></svg>QR Check-In</a>
+    <a href="fault-report.html" class="sidebar-link"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>Report Fault</a>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div class="breadcrumb"><a href="../index.html">SmartLab</a> › <a href="student-dashboard.html">Dashboard</a> › Reservations</div>
+      <h1>📅 Workstation Reservations</h1>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;" class="res-cols">
+      <!-- New Reservation Form -->
+      <div class="card">
+        <div class="card-header"><h4>➕ New Reservation</h4></div>
+        <div class="card-body">
+          <form id="newResForm" onsubmit="makeReservation(event)">
+            <div class="form-group">
+              <label class="form-label">Select Workstation</label>
+              <select id="wsSelect" class="form-control" required onchange="loadSlots()">
+                <option value="">Choose a workstation…</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Date</label>
+              <input type="date" id="resDate" class="form-control" required onchange="loadSlots()"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Time Slot</label>
+              <div class="slots-grid" id="slotsGrid">
+                <p style="color:var(--text-muted);font-size:0.85rem;grid-column:1/-1;">Select a workstation and date to see available slots.</p>
+              </div>
+              <input type="hidden" id="selectedSlot"/>
+            </div>
+            <div id="newResAlert"></div>
+            <button type="submit" class="btn btn-primary w-full" style="justify-content:center;">Confirm Reservation</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- My Reservations -->
+      <div>
+        <div class="tab-nav">
+          <button class="tab-btn active" data-tab="tab-active">Active</button>
+          <button class="tab-btn" data-tab="tab-history">History</button>
+        </div>
+        <div id="tab-active" class="tab-pane" id="tab-active"></div>
+        <div id="tab-history" class="tab-pane hidden" id="tab-history"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="toast-container"></div>
+<script src="../js/app.js"></script>
+<script>
+  let user = null, selectedSlotVal = null;
+  const ALL_SLOTS = ['08:00–10:00','10:00–12:00','12:00–14:00','14:00–16:00','16:00–18:00','18:00–20:00'];
+
+  window.onload = () => {
+    user = SmartLab.requireAuth('student');
+    if (!user) return;
+    document.getElementById('userName').textContent = user.name;
+    document.getElementById('userAvatar').textContent = user.name.split(' ').map(n=>n[0]).join('');
+    document.getElementById('resDate').min = new Date().toISOString().split('T')[0];
+    document.getElementById('resDate').value = new Date().toISOString().split('T')[0];
+
+    // Populate ws dropdown (available ones)
+    const sel = document.getElementById('wsSelect');
+    SmartLab.state.workstations.filter(w=>w.status!=='outofsvc').forEach(w=>{
+      const opt = document.createElement('option');
+      opt.value = w.id; opt.textContent = `${w.id} — ${w.status}`;
+      sel.appendChild(opt);
+    });
+
+    renderReservations();
+    initTabs('.tab-nav');
+  };
+
+  function loadSlots() {
+    const wsId = document.getElementById('wsSelect').value;
+    const date = document.getElementById('resDate').value;
+    if (!wsId || !date) return;
+    const taken = SmartLab.state.reservations
+      .filter(r=>r.wsId===wsId&&r.date===date&&r.status==='active')
+      .map(r=>r.slot);
+    const grid = document.getElementById('slotsGrid');
+    grid.innerHTML = ALL_SLOTS.map(s=>`
+      <button type="button" class="slot-btn ${taken.includes(s)?'taken':''}" 
+              onclick="${taken.includes(s)?'':'selectSlot(this,\''+s+'\')'}">${s}</button>`).join('');
+    selectedSlotVal = null;
+    document.getElementById('selectedSlot').value = '';
+  }
+
+  function selectSlot(btn, slot) {
+    document.querySelectorAll('.slot-btn').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedSlotVal = slot;
+    document.getElementById('selectedSlot').value = slot;
+  }
+
+  function makeReservation(e) {
+    e.preventDefault();
+    if (!selectedSlotVal) {
+      document.getElementById('newResAlert').innerHTML = '<div class="alert alert-warning">Please select a time slot.</div>';
+      return;
+    }
+    const result = SmartLab.createReservation(
+      user.id,
+      document.getElementById('wsSelect').value,
+      document.getElementById('resDate').value,
+      selectedSlotVal
+    );
+    if (result.error) {
+      document.getElementById('newResAlert').innerHTML = `<div class="alert alert-danger">${result.error}</div>`;
+    } else {
+      document.getElementById('newResAlert').innerHTML = '';
+      showToast('Reservation confirmed! 🎉', 'success');
+      renderReservations();
+      loadSlots();
+    }
+  }
+
+  function renderReservations() {
+    const all = SmartLab.state.reservations.filter(r=>r.userId===user.id);
+    const active = all.filter(r=>r.status==='active');
+    const history = all.filter(r=>r.status!=='active');
+
+    document.getElementById('tab-active').innerHTML = active.length
+      ? active.map(r=>`
+        <div class="res-card">
+          <div>
+            <div style="font-weight:700;color:var(--navy);">🖥 ${r.wsId}</div>
+            <div style="font-size:0.85rem;color:var(--text-muted);">📅 ${r.date} &nbsp;⏰ ${r.slot}</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.2rem;">ID: ${r.id}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.75rem;">
+            ${statusBadge(r.status)}
+            <button class="btn btn-danger btn-sm" onclick="cancelRes('${r.id}')">Cancel</button>
+          </div>
+        </div>`).join('')
+      : '<p style="color:var(--text-muted);font-size:0.9rem;">No active reservations.</p>';
+
+    document.getElementById('tab-history').innerHTML = history.length
+      ? history.map(r=>`
+        <div class="res-card ${r.status}">
+          <div>
+            <div style="font-weight:700;color:var(--navy);">🖥 ${r.wsId}</div>
+            <div style="font-size:0.85rem;color:var(--text-muted);">📅 ${r.date} &nbsp;⏰ ${r.slot}</div>
+          </div>
+          ${statusBadge(r.status)}
+        </div>`).join('')
+      : '<p style="color:var(--text-muted);font-size:0.9rem;">No past reservations.</p>';
+  }
+
+  function cancelRes(id) {
+    if (!confirm('Cancel this reservation?')) return;
+    const result = SmartLab.cancelReservation(id);
+    if (result.success) { showToast('Reservation cancelled.', 'success'); renderReservations(); }
+    else showToast(result.error, 'error');
+  }
+
+  if (window.innerWidth < 768) document.querySelector('.res-cols').style.gridTemplateColumns='1fr';
+</script>
+</body>
+</html>

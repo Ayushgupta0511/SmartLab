@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard – SmartLab</title>
+  <link rel="stylesheet" href="../css/global.css"/>
+  <style>
+    .admin-badge { background:linear-gradient(135deg,var(--gold),var(--warning)); color:var(--navy); padding:0.2rem 0.75rem; border-radius:50px; font-size:0.72rem; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; }
+    .utilization-bar { background:#E8E0CC; border-radius:50px; height:10px; overflow:hidden; }
+    .utilization-fill { height:100%; border-radius:50px; background:linear-gradient(90deg,var(--gold),var(--warning)); transition:width 0.8s ease; }
+    .chart-row { display:flex; gap:0.5rem; align-items:flex-end; height:120px; padding:0 0.5rem; }
+    .chart-bar { flex:1; border-radius:4px 4px 0 0; background:linear-gradient(to top,var(--gold),var(--gold-light)); min-width:20px; transition:height 0.5s ease; }
+    .chart-labels { display:flex; gap:0.5rem; padding:0.4rem 0.5rem 0; }
+    .chart-label { flex:1; font-size:0.65rem; color:var(--text-muted); text-align:center; }
+    .recent-action { display:flex; align-items:flex-start; gap:0.75rem; padding:0.75rem 0; border-bottom:1px solid #F0EBE0; }
+    .recent-action:last-child { border-bottom:none; }
+    .action-dot { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:1rem; }
+    .action-dot-login { background:rgba(201,168,76,0.15); }
+    .action-dot-reserve { background:rgba(52,152,219,0.15); }
+    .action-dot-fault { background:rgba(231,76,60,0.15); }
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html" class="topbar-brand">
+    <svg width="36" height="36" viewBox="0 0 44 44" fill="none"><rect width="44" height="44" rx="12" fill="#C9A84C"/><rect x="4" y="4" width="36" height="36" rx="9" fill="#0D1B2A"/><ellipse cx="22" cy="22" rx="13" ry="6" stroke="#C9A84C" stroke-width="1.5" fill="none"/><ellipse cx="22" cy="22" rx="13" ry="6" stroke="#C9A84C" stroke-width="1.5" fill="none" transform="rotate(60 22 22)"/><ellipse cx="22" cy="22" rx="13" ry="6" stroke="#C9A84C" stroke-width="1.5" fill="none" transform="rotate(120 22 22)"/><circle cx="22" cy="22" r="3" fill="#C9A84C"/></svg>
+    <div><span class="topbar-brand-name">SmartLab</span><span class="topbar-brand-sub">Administration</span></div>
+  </a>
+  <div class="topbar-actions">
+    <span class="admin-badge">🛡️ Admin</span>
+    <div class="user-chip">
+      <div class="user-avatar" id="userAvatar" style="background:linear-gradient(135deg,var(--gold),var(--warning));">PS</div>
+      <span id="userName">Dr. Priya Sharma</span>
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="SmartLab.logout()">Sign Out</button>
+  </div>
+</header>
+
+<div class="layout">
+  <!-- Admin Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-section-label">Admin Panel</div>
+    <a href="admin-dashboard.html" class="sidebar-link active">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Overview
+    </a>
+    <a href="admin-workstations.html" class="sidebar-link">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Workstations
+    </a>
+    <a href="admin-faults.html" class="sidebar-link">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Fault Reports
+    </a>
+    <a href="admin-analytics.html" class="sidebar-link">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Analytics
+    </a>
+    <a href="admin-audit.html" class="sidebar-link">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Audit Log
+    </a>
+    <div class="sidebar-section-label" style="margin-top:1rem;">Management</div>
+    <a href="admin-announcements.html" class="sidebar-link">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Announcements
+    </a>
+    <a href="#" onclick="SmartLab.logout()" class="sidebar-link" style="color:#C0392B;margin-top:auto;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out
+    </a>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div class="breadcrumb">SmartLab › Admin Dashboard</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+        <div>
+          <h1 style="font-size:1.8rem;">Command Centre</h1>
+          <p id="greetDate" style="color:var(--text-muted);font-size:0.9rem;"></p>
+        </div>
+        <button class="btn btn-primary" onclick="location.reload()">🔄 Refresh Data</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid" id="adminStats"></div>
+
+    <!-- Utilization bar -->
+    <div class="card" style="margin-bottom:1.5rem;">
+      <div class="card-body">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+          <h4 style="font-size:0.9rem;">📊 Current Lab Utilization</h4>
+          <span id="utilPct" style="font-weight:700;color:var(--gold);font-size:1.1rem;">—%</span>
+        </div>
+        <div class="utilization-bar">
+          <div class="utilization-fill" id="utilFill" style="width:0%;"></div>
+        </div>
+        <p style="font-size:0.78rem;color:var(--text-muted);margin-top:0.5rem;">Reserved + Checked In seats / Total workstations</p>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;" class="admin-cols">
+      <!-- Fault reports summary -->
+      <div class="card">
+        <div class="card-header"><h4>⚠️ Open Fault Reports</h4></div>
+        <div class="card-body" id="faultSummary"></div>
+        <div style="padding:0 1.6rem 1.2rem;"><a href="admin-faults.html" class="btn btn-outline btn-sm">Manage All →</a></div>
+      </div>
+
+      <!-- Peak hours chart -->
+      <div class="card">
+        <div class="card-header"><h4>⏱ Usage by Time Slot</h4></div>
+        <div class="card-body">
+          <div class="chart-row" id="usageChart"></div>
+          <div class="chart-labels" id="chartLabels"></div>
+        </div>
+      </div>
+
+      <!-- Recent activity -->
+      <div class="card">
+        <div class="card-header"><h4>🕐 Recent Activity</h4></div>
+        <div class="card-body" id="recentActivity"></div>
+        <div style="padding:0 1.6rem 1.2rem;"><a href="admin-audit.html" class="btn btn-outline btn-sm">Full Audit Log →</a></div>
+      </div>
+
+      <!-- Workstation status breakdown -->
+      <div class="card">
+        <div class="card-header"><h4>🖥 Workstation Status Breakdown</h4></div>
+        <div class="card-body" id="wsBreakdown"></div>
+        <div style="padding:0 1.6rem 1.2rem;"><a href="admin-workstations.html" class="btn btn-outline btn-sm">Manage Workstations →</a></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="toast-container"></div>
+<script src="../js/app.js"></script>
+<script>
+  const user = SmartLab.requireAuth('admin');
+  if (user) {
+    document.getElementById('userName').textContent = user.name;
+    document.getElementById('userAvatar').textContent = user.name.split(' ').filter((_,i)=>i===0||i===1).map(n=>n[0]).join('');
+    document.getElementById('greetDate').textContent = new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+    const a = SmartLab.getAnalytics();
+
+    // Stats
+    const stats = [
+      { label:'Total Workstations', value:a.total,         icon:'🖥', cls:'stat-icon-navy' },
+      { label:'Available',          value:a.available,     icon:'🟢', cls:'stat-icon-green' },
+      { label:'In Use (Reserved+)', value:a.reserved+a.checkedIn, icon:'💼', cls:'stat-icon-gold' },
+      { label:'Out of Service',     value:a.outOfService,  icon:'🔴', cls:'stat-icon-red' },
+      { label:'Open Fault Reports', value:a.openFaults,    icon:'⚠️', cls:'stat-icon-red' },
+      { label:'Total Reservations', value:a.totalReservations, icon:'📅', cls:'stat-icon-navy' },
+      { label:"Today's Check-Ins",  value:a.todayCheckIns, icon:'✅', cls:'stat-icon-green' },
+      { label:'Utilization Rate',   value:a.utilizationRate+'%', icon:'📊', cls:'stat-icon-gold' },
+    ];
+    const sg = document.getElementById('adminStats');
+    stats.forEach(s => {
+      sg.innerHTML += `<div class="stat-card">
+        <div class="stat-icon ${s.cls}" style="font-size:1.3rem;width:50px;height:50px;border-radius:12px;display:flex;align-items:center;justify-content:center;">${s.icon}</div>
+        <div><div class="stat-value" style="font-size:1.6rem;">${s.value}</div><div class="stat-label">${s.label}</div></div>
+      </div>`;
+    });
+
+    // Utilization
+    document.getElementById('utilPct').textContent = a.utilizationRate + '%';
+    setTimeout(()=>{ document.getElementById('utilFill').style.width = a.utilizationRate + '%'; }, 100);
+
+    // Fault summary
+    const openFaults = SmartLab.state.faultReports.filter(f=>f.status==='open').slice(0,4);
+    document.getElementById('faultSummary').innerHTML = openFaults.length
+      ? openFaults.map(f=>`
+        <div class="recent-action">
+          <div class="action-dot action-dot-fault">${{low:'🟢',medium:'🟡',high:'🔴'}[f.severity]}</div>
+          <div>
+            <div style="font-weight:600;font-size:0.9rem;color:var(--navy);">${f.wsId} — ${f.severity.toUpperCase()}</div>
+            <div style="font-size:0.82rem;color:var(--text-muted);">${f.description.substring(0,60)}…</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.2rem;">${formatDate(f.createdAt)}</div>
+          </div>
+        </div>`).join('')
+      : '<p style="color:var(--text-muted);font-size:0.9rem;">No open fault reports. 🎉</p>';
+
+    // Usage chart (mock data)
+    const slots = ['8–10','10–12','12–14','14–16','16–18','18–20'];
+    const usages = [3,8,5,10,7,4];
+    const maxU = Math.max(...usages);
+    const chart = document.getElementById('usageChart');
+    const labels = document.getElementById('chartLabels');
+    slots.forEach((s,i)=>{
+      const h = Math.round((usages[i]/maxU)*100);
+      chart.innerHTML += `<div class="chart-bar" style="height:${h}%;opacity:${0.5+usages[i]/maxU/2}" title="${s}: ${usages[i]} check-ins"></div>`;
+      labels.innerHTML += `<div class="chart-label">${s}</div>`;
+    });
+
+    // Recent activity
+    const logs = SmartLab.state.auditLog.slice(-5).reverse();
+    const icons = { LOGIN:'🔐', LOGOUT:'🚪', RESERVE:'📅', CANCEL:'❌', CHECKIN:'✅', CHECKOUT:'🚪', FAULT_REPORT:'⚠️', WS_STATUS:'🔧' };
+    document.getElementById('recentActivity').innerHTML = logs.map(l=>`
+      <div class="recent-action">
+        <div class="action-dot action-dot-login">${icons[l.action]||'📋'}</div>
+        <div>
+          <div style="font-weight:600;font-size:0.88rem;color:var(--navy);">${l.action}</div>
+          <div style="font-size:0.82rem;color:var(--text-muted);">${l.detail}</div>
+          <div style="font-size:0.72rem;color:var(--text-muted);margin-top:0.2rem;">${formatDate(l.time)}</div>
+        </div>
+      </div>`).join('') || '<p style="color:var(--text-muted);">No recent activity.</p>';
+
+    // Workstation breakdown
+    const breakdown = {available:a.available,reserved:a.reserved,checkedin:a.checkedIn,outofsvc:a.outOfService};
+    const labels2 = {available:'Available',reserved:'Reserved',checkedin:'Checked In',outofsvc:'Out of Service'};
+    const colors = {available:'#2ECC71',reserved:'#F39C12',checkedin:'#3498DB',outofsvc:'#E74C3C'};
+    document.getElementById('wsBreakdown').innerHTML = Object.entries(breakdown).map(([k,v])=>`
+      <div style="margin-bottom:0.9rem;">
+        <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:0.3rem;">
+          <span style="color:var(--text-mid);font-weight:500;">${labels2[k]}</span>
+          <span style="font-weight:700;color:var(--navy);">${v} / ${a.total}</span>
+        </div>
+        <div style="background:#E8E0CC;border-radius:50px;height:8px;overflow:hidden;">
+          <div style="width:${Math.round(v/a.total*100)}%;height:100%;background:${colors[k]};border-radius:50px;transition:width 0.8s ease;"></div>
+        </div>
+      </div>`).join('');
+
+    if (window.innerWidth < 768) document.querySelector('.admin-cols').style.gridTemplateColumns='1fr';
+  }
+</script>
+</body>
+</html>
